@@ -2,11 +2,11 @@ package com.example.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -18,27 +18,29 @@ import java.util.ArrayList;
  * Custom Adapter to display ArrayList of {@link MovieData} in GridView
  */
 
-public class MovieAdapter extends BaseAdapter {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MyViewHolder> {
     private static final String TAG = "MovieAdapter";
 
     private ArrayList<MovieData> movieList;
     private Context context;
-    private LayoutInflater inflater;
 
     public MovieAdapter(MainActivity _mainActivity, ArrayList<MovieData> _movieList) {
         context = _mainActivity;
         movieList = _movieList;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+
+    @Override
+    public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+        View view = inflater.inflate(R.layout.adapterview, viewGroup, false);
+        return new MyViewHolder(view);
     }
 
     @Override
-    public int getCount() {
-        return movieList.size();
-    }
-
-    @Override
-    public Object getItem(int _position) {
-        return movieList.get(_position);
+    public void onBindViewHolder(MyViewHolder holder, int position) {
+        ImageView imgView = holder.imgView;
+        NetworkUtils.loadImage(context, movieList.get(position).getPosterPath(), imgView);
     }
 
     @Override
@@ -47,21 +49,29 @@ public class MovieAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int _position, View view, ViewGroup viewGroup) {
-        View v = inflater.inflate(R.layout.adapterview, null);
-        ImageView imgView = (ImageView) v.findViewById(R.id.img);
-        NetworkUtils.loadImage(context, movieList.get(_position).getPosterPath(), imgView);
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.v(TAG, String.format("%s clicked", movieList.get(_position).getTitle()));
-                Toast.makeText(context, "You clicked " + movieList.get(_position).getTitle(), Toast.LENGTH_SHORT).show();
+    public int getItemCount() {
+        return movieList.size();
+    }
 
-                Intent detailIntent = new Intent(context, DetailActivity.class);
-                detailIntent.putExtra(DetailActivity.EXTRA_MOVIE, movieList.get(_position));
-                context.startActivity(detailIntent);
-            }
-        });
-        return v;
+
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        public ImageView imgView;
+
+        public MyViewHolder(View itemView) {
+            super(itemView);
+            imgView = (ImageView)itemView.findViewById(R.id.main_item_img);
+            imgView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            Log.v(TAG, String.format("%s clicked", movieList.get(position).getTitle()));
+            Toast.makeText(context, "You clicked " + movieList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
+
+            Intent detailIntent = new Intent(context, DetailActivity.class);
+            detailIntent.putExtra(DetailActivity.EXTRA_MOVIE, movieList.get(position));
+            context.startActivity(detailIntent);
+        }
     }
 }

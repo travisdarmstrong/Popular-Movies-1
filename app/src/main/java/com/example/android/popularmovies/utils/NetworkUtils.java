@@ -92,7 +92,11 @@ public class NetworkUtils {
     public static void loadImage(Context context, String _posterPath, ImageView _imgView) {
         String url = NetworkUtils.IMAGE_URL_BASE + NetworkUtils.IMAGE_URL_SIZE + _posterPath;
         try {
-            Picasso.with(context).load(url).placeholder(R.drawable.ic_cloud_download_black_24dp).into(_imgView);
+            Picasso.with(context)
+                    .load(url)
+                    .placeholder(R.drawable.ic_cloud_download_black_24dp)
+                    .error(R.drawable.notfound)
+                    .into(_imgView);
         } catch (Exception e) {
             Log.e(TAG, "Error loading image: " + e.toString(), e);
             _imgView.setImageResource(R.drawable.notfound);

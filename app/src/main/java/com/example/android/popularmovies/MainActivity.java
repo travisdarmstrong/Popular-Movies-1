@@ -3,11 +3,12 @@ package com.example.android.popularmovies;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private final String apikey = ApiKey.API_KEY;
     private ArrayList<MovieData> movieList;
-    private GridView gridView;
+    private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView errorMessage;
 
@@ -106,9 +107,13 @@ public class MainActivity extends AppCompatActivity {
      * Connect the UI elements
      */
     private void setupUI() {
-        gridView = (GridView) findViewById(R.id.main_gridview);
+        recyclerView = (RecyclerView) findViewById(R.id.main_recyclerview);
         progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
         errorMessage = (TextView) findViewById(R.id.main_error);
+
+        GridLayoutManager layoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.num_columns));
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
     }
 
     /**
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setProgressMode() {
         errorMessage.setVisibility(View.INVISIBLE);
-        gridView.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -125,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setDataMode() {
         errorMessage.setVisibility(View.INVISIBLE);
-        gridView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
     }
 
@@ -134,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setErrorMode() {
         errorMessage.setVisibility(View.VISIBLE);
-        gridView.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
     }
 
@@ -148,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Movie list is empty!!!");
             setErrorMode();
         } else {
-            gridView.setAdapter(new MovieAdapter(MainActivity.this, movieList));
+            recyclerView.setAdapter(new MovieAdapter(MainActivity.this, movieList));
         }
     }
 
