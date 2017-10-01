@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.android.popularmovies.utils.NetworkUtils;
 
@@ -67,7 +66,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MyViewHolder
         public void onClick(View view) {
             int position = getAdapterPosition();
             Log.v(TAG, String.format("%s clicked", movieList.get(position).getTitle()));
-            Toast.makeText(context, "You clicked " + movieList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
 
             Intent detailIntent = new Intent(context, DetailActivity.class);
             detailIntent.putExtra(DetailActivity.EXTRA_MOVIE, movieList.get(position));

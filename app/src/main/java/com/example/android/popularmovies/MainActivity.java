@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String BUNDLE_SAVEDMOVIES = "saved_movies";
@@ -31,10 +34,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private final String apikey = ApiKey.API_KEY;
     private ArrayList<MovieData> movieList;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private TextView errorMessage;
-
+    @BindView(R.id.main_recyclerview) RecyclerView recyclerView;
+    @BindView(R.id.main_progressbar) ProgressBar progressBar;
+    @BindView(R.id.main_error) TextView errorMessage;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         setupUI();
         // Check for locally cached movie data, and use it
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_SAVEDMOVIES)) {
@@ -107,10 +109,6 @@ public class MainActivity extends AppCompatActivity {
      * Connect the UI elements
      */
     private void setupUI() {
-        recyclerView = (RecyclerView) findViewById(R.id.main_recyclerview);
-        progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
-        errorMessage = (TextView) findViewById(R.id.main_error);
-
         GridLayoutManager layoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.num_columns));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);

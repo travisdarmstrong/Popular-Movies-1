@@ -9,21 +9,25 @@ import android.widget.TextView;
 
 import com.example.android.popularmovies.utils.NetworkUtils;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class DetailActivity extends AppCompatActivity {
     private static final String TAG = "DetailActivity";
     public static final String EXTRA_MOVIE = "extra_movie";
+
     private MovieData movieData;
-    private ImageView detailPoster;
-    private TextView detailTitle;
-    private TextView detailRating;
-    private TextView detailRelease;
-    private TextView detailSummary;
+    @BindView(R.id.detail_image)    ImageView detailPoster;
+    @BindView(R.id.detail_title)    TextView detailTitle;
+    @BindView(R.id.detail_rating_value)    TextView detailRating;
+    @BindView(R.id.detail_releasedate_value)    TextView detailRelease;
+    @BindView(R.id.detail_overview)    TextView detailSummary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        setupUI();
+        ButterKnife.bind(this);
         Intent callingIntent = getIntent();
         if (callingIntent != null && callingIntent.hasExtra(EXTRA_MOVIE)) {
             Log.v(TAG, "Bundle contains movie data");
@@ -32,16 +36,6 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Connect the UI elements
-     */
-    private void setupUI() {
-        detailPoster = (ImageView) findViewById(R.id.detail_image);
-        detailTitle = (TextView) findViewById(R.id.detail_title);
-        detailRating = (TextView) findViewById(R.id.detail_rating_value);
-        detailRelease = (TextView) findViewById(R.id.detail_releasedate_value);
-        detailSummary = (TextView) findViewById(R.id.detail_overview);
-    }
 
     /**
      * Display the movie data on the screen
