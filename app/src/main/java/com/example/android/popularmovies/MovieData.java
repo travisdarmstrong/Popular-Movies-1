@@ -2,11 +2,18 @@ package com.example.android.popularmovies;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Movie Data from themoviedb
  */
 public class MovieData implements Parcelable {
+    private final static String TAG = "MovieDateClass";
+    private final String id;
     private final String title;
     private final String plotSummary;
     private final String userRating;
@@ -16,7 +23,8 @@ public class MovieData implements Parcelable {
     /***
      * Movie Data from themoviedb
      */
-    public MovieData(String _title, String _plotSummary, String _userRating, String _releaseDate, String _posterPath) {
+    public MovieData(String _id, String _title, String _plotSummary, String _userRating, String _releaseDate, String _posterPath) {
+        id = _id;
         title = _title;
         plotSummary = _plotSummary;
         userRating = _userRating;
@@ -28,11 +36,19 @@ public class MovieData implements Parcelable {
      * Movie Data from themoviedb, created by using locally cached data
      */
     private MovieData(Parcel bundle) {
+        id = bundle.readString();
         title = bundle.readString();
         plotSummary = bundle.readString();
         userRating = bundle.readString();
         releaseDate = bundle.readString();
         posterPath = bundle.readString();
+    }
+
+    /**
+     * Get the movie id
+     */
+    public String getId() {
+        return id;
     }
 
     /**
@@ -64,6 +80,23 @@ public class MovieData implements Parcelable {
     }
 
     /**
+     * Get the year of the movie release
+     *
+     * @return
+     */
+    public String getReleaseYear() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd", Locale.getDefault());
+        Date date;
+        try {
+            date = format.parse(releaseDate);
+            return (new SimpleDateFormat("yyyy")).format(date);
+        } catch (Exception ex) {
+            Log.e(TAG, "Error parsing date: " + ex.toString());
+        }
+        return "";
+    }
+
+    /**
      * Get the path for the movie poster on themoviedb
      */
     public String getPosterPath() {
@@ -82,6 +115,7 @@ public class MovieData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
         parcel.writeString(title);
         parcel.writeString(plotSummary);
         parcel.writeString(userRating);

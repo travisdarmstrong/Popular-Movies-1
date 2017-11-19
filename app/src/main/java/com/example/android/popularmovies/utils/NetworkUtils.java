@@ -32,6 +32,7 @@ public class NetworkUtils {
     private static final String MOVIEDB_BASE = "http://api.themoviedb.org/3/movie/";
     private static final String QUERY_APIKEY = "api_key";
 
+    private static final String MOVIEDB_VIDEOS = "videos";
 
     /**
      * Build the URL for querying movies
@@ -102,6 +103,29 @@ public class NetworkUtils {
             _imgView.setImageResource(R.drawable.notfound);
         }
     }
+
+    /**
+     * Get the URL for the video resources
+     */
+    public static URL getVideosURL(String apikey, String movieId) {
+        URL url = null;
+        Uri uri = Uri.parse(MOVIEDB_BASE).buildUpon()
+                .appendPath(movieId).appendPath(MOVIEDB_VIDEOS)
+                .appendQueryParameter(QUERY_APIKEY, apikey)
+                .build();
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException malEx) {
+            Log.e(TAG, "Bad URL", malEx);
+        } catch (Exception ex) {
+            Log.e(TAG, "Error generating URL", ex);
+        }
+        if (url != null) {
+            Log.i(TAG, "Videos URL: " + url);
+        }
+        return url;
+    }
+
 }
 
 

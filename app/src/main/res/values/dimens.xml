@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- movie details values -->
+    <dimen name="details_layout_horizontal_margin">16dp</dimen>
+    <dimen name="details_layout_vertical_separation">16dp</dimen>
+    <dimen name="details_layout_horizontal_separation">32dp</dimen>
+
+    <!-- Details View spacing -->
+    <dimen name="horizontal_edge_spacing">16dp</dimen>
+
+    <dimen name="favorite_icon_size">50dp</dimen>
+</resources>
