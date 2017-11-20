@@ -1,5 +1,7 @@
 package com.example.android.popularmovies;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.popularmovies.data.DataContract;
 import com.example.android.popularmovies.utils.ApiKey;
 import com.example.android.popularmovies.utils.JsonUtils;
 import com.example.android.popularmovies.utils.NetworkUtils;
@@ -51,7 +54,12 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "User selected menu item to Sort By Highest Rating");
             loadMovieData();
             return true;
-        } else if (itemId == R.id.menu_refresh) {
+        }else if (itemId == R.id.menu_sort_favorites) {
+            Log.i(TAG, "User selected menu item to only show favorites");
+            filterMovieData();
+            return true;
+        }
+        else if (itemId == R.id.menu_refresh) {
             Log.i(TAG, "User requests data refresh");
             loadMovieData();
             return true;
@@ -82,13 +90,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         ButterKnife.bind(this);
         setupUI();
         // Check for locally cached movie data, and use it
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_SAVEDMOVIES)) {
-            Log.v(TAG, "Saved instance state has saved movie data");
+            Log.d(TAG, "Saved instance state has saved movie data");
             ArrayList<MovieData> savedMovies = savedInstanceState.getParcelableArrayList(BUNDLE_SAVEDMOVIES);
-            Log.v(TAG, "Found " + savedMovies.size() + " movies");
+            Log.d(TAG, "Found " + savedMovies.size() + " movies");
             movieList = savedMovies;
             DisplayMovies();
         } else {
@@ -100,9 +109,15 @@ public class MainActivity extends AppCompatActivity {
      * Load {@link MovieData} from network, using a background thread
      */
     private void loadMovieData() {
-        Log.v(TAG, "Loading Movie Data");
+        Log.d(TAG, "Loading Movie Data");
         setProgressMode();
         new GetMoviesTask().execute();
+    }
+
+    private void filterMovieData(){
+        Log.d(TAG, "Filtering movie data");
+        setProgressMode();
+        new FilterMoviesTask().execute();
     }
 
     /**
@@ -145,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
      * Display the movie data
      */
     private void DisplayMovies() {
-        Log.v(TAG, "About to display movies");
+        Log.d(TAG, "About to display movies");
         setDataMode();
         if (movieList == null || movieList.size() == 0) {
             Log.e(TAG, "Movie list is empty!!!");
@@ -161,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     private class GetMoviesTask extends AsyncTask<Void, Void, ArrayList<MovieData>> {
         @Override
         protected ArrayList<MovieData> doInBackground(Void... voids) {
-            Log.v(TAG, "GetMoviesTask running in background");
+            Log.d(TAG, "GetMoviesTask running in background");
 
             String result = "";
             URL url = NetworkUtils.buildUrl(apikey);
@@ -193,14 +208,61 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.v(TAG, "GetMoviesTask about to run");
+            Log.d(TAG, "GetMoviesTask about to run");
         }
 
         @Override
         protected void onPostExecute(ArrayList<MovieData> result) {
             super.onPostExecute(result);
-            Log.v(TAG, "GetMoviesTask finished.");
+            Log.d(TAG, "GetMoviesTask finished.");
             movieList = result;
+            DisplayMovies();
+        }
+    }
+
+    private class FilterMoviesTask extends AsyncTask<Void, Void, ArrayList<MovieData>>{
+
+        @Override
+        protected ArrayList<MovieData> doInBackground(Void... voids) {
+            Uri uri = DataContract.FavoritesEntry.CONTENT_URI;
+            String[] columns = new String[]{DataContract.FavoritesEntry.COLUMN_MOVIE_ID, DataContract.FavoritesEntry.COLUMN_MOVIE_NAME};
+            Cursor c = getContentResolver().query(uri, columns, null, null, null);
+            ArrayList<Integer> favoriteMovieIds=new ArrayList<>();
+            Log.d(TAG, "Got full list of favorite movies");
+            if (c!=null && c.moveToFirst()){
+                do{
+                    int movieId = Integer.valueOf(c.getString(c.getColumnIndex(DataContract.FavoritesEntry.COLUMN_MOVIE_ID)));
+                    favoriteMovieIds.add(movieId);
+                    String movieName = c.getString(c.getColumnIndex(DataContract.FavoritesEntry.COLUMN_MOVIE_NAME));
+                    Log.v(TAG, "Favorite movie (" + movieId + ") - " + movieName);
+                }while(c.moveToNext());
+            }
+
+            // now filter out the movies that aren't in the favorites list
+            ArrayList<MovieData> favMovieList = new ArrayList<>();
+            for (MovieData movie: movieList){
+                Integer thisId = Integer.valueOf(movie.getId());
+                if (favoriteMovieIds.contains(thisId)){
+                    favMovieList.add(movie);
+                    Log.v(TAG, movie.getTitle() + " is in the favorites list");
+                }
+            }
+
+            Log.d(TAG, "Movie list now has " + favMovieList.size() + " items in it");
+            return favMovieList;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(TAG, "FilterMoviesTask about to run");
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<MovieData> movieData) {
+            super.onPostExecute(movieData);
+            Log.d(TAG, "FilterMoviesTask finished");
+            movieList = movieData;
             DisplayMovies();
         }
     }

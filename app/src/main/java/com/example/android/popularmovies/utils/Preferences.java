@@ -7,7 +7,8 @@ package com.example.android.popularmovies.utils;
 public class Preferences {
     private static final String MOVIES_POPULAR = "popular";
     private static final String MOVIES_TOPRATED = "top_rated";
-    private static String SortPreference = MOVIES_TOPRATED;
+    private static final String MOVIES_FAVORITES = "favorites";
+    private static String SortPreference = MOVIES_POPULAR;
 
     /**
      * Get preferred sort order

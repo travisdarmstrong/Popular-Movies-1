@@ -3,6 +3,7 @@ package com.example.android.popularmovies.utils;
 import android.util.Log;
 
 import com.example.android.popularmovies.MovieData;
+import com.example.android.popularmovies.ReviewData;
 import com.example.android.popularmovies.VideoData;
 
 import org.json.JSONArray;
@@ -38,18 +39,23 @@ public final class JsonUtils {
     private static final String JSON_VIDEOS_SITE = "site";
     private static final String JSON_VIDEOS_TYPE = "type";
 
+    private static final String JSON_REVIEWS_ID = "id";
+    private static final String JSON_REVIEWS_AUTHOR = "author";
+    private static final String JSON_REVIEWS_CONTENT = "content";
+    private static final String JSON_REVIEWS_URL = "url";
+
     /**
      * Parse the JSON data string into an ArrayList of {@link MovieData}
      */
     public static ArrayList<MovieData> parseJsonData(String jsonString) throws JSONException {
-        Log.v(TAG, "Parsing JSON movie data");
+        Log.d(TAG, "Parsing JSON movie data");
         JSONObject rootObject = new JSONObject(jsonString);
 
         Log.v(TAG, rootObject.toString());
 
         JSONArray resultsArray = rootObject.getJSONArray(JSON_RESULTS);
 
-        Log.v(TAG, String.format("%s results found", resultsArray.length()));
+        Log.d(TAG, String.format("%s results found", resultsArray.length()));
         ArrayList<MovieData> results = new ArrayList<>();
 
         for (int i = 0; i < resultsArray.length(); i++) {
@@ -73,11 +79,11 @@ public final class JsonUtils {
      * Parse the JSON data string into an ArrayList of {@link VideoData}
      */
     public static ArrayList<VideoData> parseJsonVideoData(String jsonString) throws JSONException {
-        Log.v(TAG, "Parsing JSON Video data");
+        Log.d(TAG, "Parsing JSON Video data");
         JSONObject rootObject = new JSONObject(jsonString);
         String movieId = rootObject.getString(JSON_ID);
         JSONArray resultsArray = rootObject.getJSONArray(JSON_RESULTS);
-        Log.v(TAG, String.format("%s results found", resultsArray.length()));
+        Log.d(TAG, String.format("%s results found", resultsArray.length()));
 
         ArrayList<VideoData> videoResults = new ArrayList<>();
         for (int i = 0; i < resultsArray.length(); i++) {
@@ -95,6 +101,29 @@ public final class JsonUtils {
             Log.v(TAG, newVideo.toString());
         }
         return videoResults;
+    }
+
+    /**
+     * Parse the JSON data string into an ArrayList of {@link ReviewData}
+     */
+    public static ArrayList<ReviewData> parseJsonReviewData(String jsonString) throws JSONException{
+        Log.d(TAG, "Parsing JSON Review data");
+        JSONObject rootObject = new JSONObject(jsonString);
+        JSONArray resultsArray = rootObject.getJSONArray(JSON_RESULTS);
+        Log.d(TAG, String.format("%s results found", resultsArray.length()));
+
+        ArrayList<ReviewData> reviewData = new ArrayList<>();
+        for (int i = 0; i < resultsArray.length(); i++) {
+            JSONObject obj = resultsArray.getJSONObject(i);
+            String id = obj.getString(JSON_REVIEWS_ID);
+            String author = obj.getString(JSON_REVIEWS_AUTHOR);
+            String content = obj.getString(JSON_REVIEWS_CONTENT);
+            String url = obj.getString(JSON_REVIEWS_URL);
+            ReviewData newReview = new ReviewData(id, author, content, url);
+            reviewData.add(newReview);
+            Log.v(TAG, newReview.toString());
+        }
+        return reviewData;
     }
 }
 

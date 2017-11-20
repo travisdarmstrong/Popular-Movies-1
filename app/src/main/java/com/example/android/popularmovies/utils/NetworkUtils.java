@@ -33,6 +33,7 @@ public class NetworkUtils {
     private static final String QUERY_APIKEY = "api_key";
 
     private static final String MOVIEDB_VIDEOS = "videos";
+    private static final String MOVIEDB_REVIEWS = "reviews";
 
     /**
      * Build the URL for querying movies
@@ -53,7 +54,7 @@ public class NetworkUtils {
             Log.e(TAG, "Error generating URL", ex);
         }
         if (url != null) {
-            Log.v(TAG, "Built URL: " + url.toString());
+            Log.d(TAG, "Built URL: " + url.toString());
         }
         return url;
     }
@@ -74,7 +75,7 @@ public class NetworkUtils {
         } catch (Exception ex) {
             Log.e(TAG, "Exception getting data: " + ex.toString(), ex);
         }
-        Log.v(TAG, "Received response from Http: " + result);
+        Log.d(TAG, "Received response from Http: " + result);
         return result;
     }
 
@@ -111,6 +112,28 @@ public class NetworkUtils {
         URL url = null;
         Uri uri = Uri.parse(MOVIEDB_BASE).buildUpon()
                 .appendPath(movieId).appendPath(MOVIEDB_VIDEOS)
+                .appendQueryParameter(QUERY_APIKEY, apikey)
+                .build();
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException malEx) {
+            Log.e(TAG, "Bad URL", malEx);
+        } catch (Exception ex) {
+            Log.e(TAG, "Error generating URL", ex);
+        }
+        if (url != null) {
+            Log.i(TAG, "Videos URL: " + url);
+        }
+        return url;
+    }
+
+    /**
+     * Get the URL for user reviews
+     */
+    public static URL getReviewsURL(String apikey, String movieId){
+        URL url = null;
+        Uri uri = Uri.parse(MOVIEDB_BASE).buildUpon()
+                .appendPath(movieId).appendPath(MOVIEDB_REVIEWS)
                 .appendQueryParameter(QUERY_APIKEY, apikey)
                 .build();
         try {

@@ -81,15 +81,13 @@ public class MovieData implements Parcelable {
 
     /**
      * Get the year of the movie release
-     *
-     * @return
      */
     public String getReleaseYear() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd", Locale.getDefault());
         Date date;
         try {
             date = format.parse(releaseDate);
-            return (new SimpleDateFormat("yyyy")).format(date);
+            return (new SimpleDateFormat("yyyy", Locale.getDefault())).format(date);
         } catch (Exception ex) {
             Log.e(TAG, "Error parsing date: " + ex.toString());
         }
