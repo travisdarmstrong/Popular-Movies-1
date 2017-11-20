@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.popularmovies.data.DataContract;
-import com.example.android.popularmovies.utils.ApiKey;
 import com.example.android.popularmovies.utils.JsonUtils;
 import com.example.android.popularmovies.utils.NetworkUtils;
 
@@ -341,7 +340,7 @@ public class DetailActivity extends AppCompatActivity
             // Build the URL
             String response = "";
             String movieId = params[0];
-            URL url = NetworkUtils.getVideosURL(ApiKey.API_KEY, movieId);
+            URL url = NetworkUtils.getVideosURL(MainActivity.apikey, movieId);
 
             // Fetch data from the web site
             try {
@@ -391,7 +390,7 @@ public class DetailActivity extends AppCompatActivity
             // Build the URL
             String response = "";
             String movieId = params[0];
-            URL url = NetworkUtils.getReviewsURL(ApiKey.API_KEY, movieId);
+            URL url = NetworkUtils.getReviewsURL(MainActivity.apikey, movieId);
 
             // Fetch data from the web site
             try {

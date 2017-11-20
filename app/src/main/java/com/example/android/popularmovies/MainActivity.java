@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.data.DataContract;
-import com.example.android.popularmovies.utils.ApiKey;
 import com.example.android.popularmovies.utils.JsonUtils;
 import com.example.android.popularmovies.utils.NetworkUtils;
 import com.example.android.popularmovies.utils.Preferences;
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This is my api key. For this to work for you, replace this with your own api key
      */
-    private final String apikey = ApiKey.API_KEY;
+    public static final String apikey = "Your API Key Here";
     private ArrayList<MovieData> movieList;
     @BindView(R.id.main_recyclerview) RecyclerView recyclerView;
     @BindView(R.id.main_progressbar) ProgressBar progressBar;
