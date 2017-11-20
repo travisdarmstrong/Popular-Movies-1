@@ -99,11 +99,11 @@ public class DetailActivity extends AppCompatActivity
         } else {
             LoadUserReviews();
         }
-        if (savedInstanceState!=null && savedInstanceState.containsKey(BUNDLE_SAVED_FAVORITE)){
+        if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_SAVED_FAVORITE)) {
             Log.v(TAG, "Saved instance state has favorite status");
             isFavorite = savedInstanceState.getBoolean(BUNDLE_SAVED_FAVORITE);
             SetFavoriteIcon();
-        }else{
+        } else {
             CheckFavoriteStatus();
         }
 
@@ -117,9 +117,9 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId()==R.id.menu_detail_share){
+        if (item.getItemId() == R.id.menu_detail_share) {
             // Share the first video trailer
-            if (videoList.size()>0){
+            if (videoList.size() > 0) {
                 VideoData video = videoList.get(0);
                 URL url = video.getVideoURL();
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -127,7 +127,7 @@ public class DetailActivity extends AppCompatActivity
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
                 shareIntent.putExtra(Intent.EXTRA_TEXT, url.toString());
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.share_subject)));
-            }else{
+            } else {
                 Toast.makeText(this, getString(R.string.error_share_novideo), Toast.LENGTH_SHORT).show();
             }
         }
@@ -156,7 +156,7 @@ public class DetailActivity extends AppCompatActivity
         if (videoList != null && videoList.size() > 0) {
             outState.putParcelableArrayList(BUNDLE_SAVED_VIDEOS, videoList);
         }
-        if (reviewList!=null && reviewList.size()>0){
+        if (reviewList != null && reviewList.size() > 0) {
             outState.putParcelableArrayList(BUNDLE_SAVED_REVIEWS, reviewList);
         }
         outState.putBoolean(BUNDLE_SAVED_FAVORITE, isFavorite);
@@ -250,7 +250,12 @@ public class DetailActivity extends AppCompatActivity
      */
     private void LoadTrailers() {
         Log.v(TAG, "loading trailers");
-        new GetTrailersTask().execute(movieData.getId());
+        if (!NetworkUtils.isOnline(DetailActivity.this)) {
+            Log.e(TAG, "Device is not online");
+            Toast.makeText(DetailActivity.this, getString(R.string.error_no_videos), Toast.LENGTH_LONG).show();
+        } else {
+            new GetTrailersTask().execute(movieData.getId());
+        }
     }
 
     /**
@@ -270,7 +275,12 @@ public class DetailActivity extends AppCompatActivity
 
     private void LoadUserReviews() {
         Log.d(TAG, "Loading reviews");
-        new GetReviewsTask().execute(movieData.getId());
+        if (!NetworkUtils.isOnline(DetailActivity.this)) {
+            Log.e(TAG, "Device is not online");
+            Toast.makeText(DetailActivity.this, getString(R.string.error_no_videos), Toast.LENGTH_LONG).show();
+        } else {
+            new GetReviewsTask().execute(movieData.getId());
+        }
     }
 
     private void DisplayUserReviews() {
@@ -324,16 +334,10 @@ public class DetailActivity extends AppCompatActivity
         @Override
         protected ArrayList<VideoData> doInBackground(String... params) {
             Log.v(TAG, "Running in background");
-            if (!NetworkUtils.isOnline(DetailActivity.this)) {
-                Log.e(TAG, "Device is not online");
-                Toast.makeText(DetailActivity.this, getString(R.string.error_no_videos), Toast.LENGTH_LONG).show();
-                return null;
-            }
             if (params.length < 1) {
                 Log.e(TAG, "No input parameter to GetTrailersTask. Movie ID required");
                 return null;
             }
-
             // Build the URL
             String response = "";
             String movieId = params[0];
@@ -380,11 +384,6 @@ public class DetailActivity extends AppCompatActivity
         @Override
         protected ArrayList<ReviewData> doInBackground(String... params) {
             Log.v(TAG, "Running in background");
-            if (!NetworkUtils.isOnline(DetailActivity.this)) {
-                Log.e(TAG, "Device is not online");
-                Toast.makeText(DetailActivity.this, getString(R.string.error_no_videos), Toast.LENGTH_LONG).show();
-                return null;
-            }
             if (params.length < 1) {
                 Log.e(TAG, "No input parameter to GetReviewsTask. Movie ID required");
                 return null;

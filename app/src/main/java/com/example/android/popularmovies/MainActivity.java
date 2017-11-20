@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.v(TAG, "Favorite movie (" + movieId + ") - " + movieName);
                 }while(c.moveToNext());
             }
-
+            c.close();
             // now filter out the movies that aren't in the favorites list
             ArrayList<MovieData> favMovieList = new ArrayList<>();
             for (MovieData movie: movieList){
