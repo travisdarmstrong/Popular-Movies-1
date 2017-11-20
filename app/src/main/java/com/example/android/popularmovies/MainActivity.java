@@ -220,6 +220,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Filter the displayed movies to show only the Favorite movies
+     */
     private class FilterMoviesTask extends AsyncTask<Void, Void, ArrayList<MovieData>>{
 
         @Override

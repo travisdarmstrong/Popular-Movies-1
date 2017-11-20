@@ -20,7 +20,7 @@
     <string name="videos_label">Trailers:</string>
     <string name="reviews_label">User Reviews:</string>
     <string name="menu_detail_share">Share Trailer</string>
-    <string name="error_share_novideo">Cannot share video link. None found</string>
+    <string name="error_share_novideo">Cannot share movie trailer. None found</string>
     <string name="share_subject">Check out this movie trailer!</string>
     <string name="share_chooser_title">Share movie trailer</string>
 

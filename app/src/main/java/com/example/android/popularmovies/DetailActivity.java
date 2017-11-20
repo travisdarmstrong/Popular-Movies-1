@@ -128,7 +128,7 @@ public class DetailActivity extends AppCompatActivity
                 shareIntent.putExtra(Intent.EXTRA_TEXT, url.toString());
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.share_subject)));
             }else{
-                Toast.makeText(this, getString(R.string.error_no_videos), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_share_novideo), Toast.LENGTH_SHORT).show();
             }
         }
         return super.onOptionsItemSelected(item);
