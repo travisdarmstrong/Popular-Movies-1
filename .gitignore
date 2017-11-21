@@ -58,4 +58,5 @@ freeline_project_description.json
 ApiKey.java
 # ignore gradle properties
 /gradle.properties
+gradle.properties
 
