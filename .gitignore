@@ -56,4 +56,6 @@ freeline_project_description.json
 
 # ignore the file that includes the API KEY for themoviedb.org
 ApiKey.java
+# ignore gradle properties
+/gradle.properties
 
