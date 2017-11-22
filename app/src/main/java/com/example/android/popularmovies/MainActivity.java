@@ -1,8 +1,5 @@
 package com.example.android.popularmovies;
 
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,15 +11,11 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.data.DataContract;
-import com.example.android.popularmovies.utils.JsonUtils;
-import com.example.android.popularmovies.utils.NetworkUtils;
+import com.example.android.popularmovies.utils.FilterMoviesTask;
+import com.example.android.popularmovies.utils.GetMoviesTask;
 import com.example.android.popularmovies.utils.Preferences;
+import com.example.android.popularmovies.utils.TaskUtils;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -31,10 +24,6 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String BUNDLE_SAVEDMOVIES = "saved_movies";
-    /**
-     * This is my api key. For this to work for you, replace this with your own api key
-     */
-    public static final String apikey = "Your API Key Here";
     private ArrayList<MovieData> movieList;
     @BindView(R.id.main_recyclerview) RecyclerView recyclerView;
     @BindView(R.id.main_progressbar) ProgressBar progressBar;
@@ -46,21 +35,21 @@ public class MainActivity extends AppCompatActivity {
         if (itemId == R.id.menu_sort_mostpopular) {
             Log.i(TAG, "User selected menu item to Sort By Most Popular");
             Preferences.setSortOrderMostPopular();
-            loadMovieData();
+            LoadMovieData();
             return true;
         } else if (itemId == R.id.menu_sort_rating) {
             Preferences.setSortOrderTopRated();
             Log.i(TAG, "User selected menu item to Sort By Highest Rating");
-            loadMovieData();
+            LoadMovieData();
             return true;
         }else if (itemId == R.id.menu_sort_favorites) {
             Log.i(TAG, "User selected menu item to only show favorites");
-            filterMovieData();
+            FilterMovieData();
             return true;
         }
         else if (itemId == R.id.menu_refresh) {
             Log.i(TAG, "User requests data refresh");
-            loadMovieData();
+            LoadMovieData();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -100,24 +89,40 @@ public class MainActivity extends AppCompatActivity {
             movieList = savedMovies;
             DisplayMovies();
         } else {
-            loadMovieData();
+            LoadMovieData();
         }
     }
 
     /**
      * Load {@link MovieData} from network, using a background thread
      */
-    private void loadMovieData() {
+    private void LoadMovieData() {
         Log.d(TAG, "Loading Movie Data");
         setProgressMode();
-        new GetMoviesTask().execute();
+        new GetMoviesTask(this, new TaskUtils.AsyncTaskCompleteListener<ArrayList<MovieData>>() {
+            @Override
+            public void onTaskComplete(ArrayList<MovieData> results) {
+                movieList = results;
+                DisplayMovies();
+            }
+        }).execute();
     }
 
-    private void filterMovieData(){
+    /**
+     * Filter movies for only favorites
+     */
+    private void FilterMovieData(){
         Log.d(TAG, "Filtering movie data");
         setProgressMode();
-        new FilterMoviesTask().execute();
+        new FilterMoviesTask(this, new TaskUtils.AsyncTaskCompleteListener<ArrayList<MovieData>>() {
+            @Override
+            public void onTaskComplete(ArrayList<MovieData> results) {
+                movieList = results;
+                DisplayMovies();
+            }
+        }).execute(movieList);
     }
+
 
     /**
      * Connect the UI elements
@@ -169,103 +174,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Get movie data from internet using background thread
-     */
-    private class GetMoviesTask extends AsyncTask<Void, Void, ArrayList<MovieData>> {
-        @Override
-        protected ArrayList<MovieData> doInBackground(Void... voids) {
-            Log.d(TAG, "GetMoviesTask running in background");
 
-            String result = "";
-            URL url = NetworkUtils.buildUrl(apikey);
-
-            if (!NetworkUtils.isOnline(MainActivity.this)) {
-                Log.e(TAG, "Device is not online!!!");
-                return null;
-            }
-            try {
-                result = NetworkUtils.getResponseFromHttp(url);
-            } catch (IOException ioEx) {
-                Log.e(TAG, "Exception getting data: " + ioEx.toString(), ioEx);
-            }
-            Log.v(TAG, "Result from Http: " + result);
-            if (result.isEmpty()) {
-                Log.w(TAG, "Empty response");
-                return null;
-            }
-            // parse the JSON data
-            ArrayList<MovieData> movieList = null;
-            try {
-                movieList = JsonUtils.parseJsonData(result);
-            } catch (JSONException jsonEx) {
-                Log.e(TAG, "Error parsing JSON data", jsonEx);
-            }
-            return movieList;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Log.d(TAG, "GetMoviesTask about to run");
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MovieData> result) {
-            super.onPostExecute(result);
-            Log.d(TAG, "GetMoviesTask finished.");
-            movieList = result;
-            DisplayMovies();
-        }
-    }
-
-    /**
-     * Filter the displayed movies to show only the Favorite movies
-     */
-    private class FilterMoviesTask extends AsyncTask<Void, Void, ArrayList<MovieData>>{
-
-        @Override
-        protected ArrayList<MovieData> doInBackground(Void... voids) {
-            Uri uri = DataContract.FavoritesEntry.CONTENT_URI;
-            String[] columns = new String[]{DataContract.FavoritesEntry.COLUMN_MOVIE_ID, DataContract.FavoritesEntry.COLUMN_MOVIE_NAME};
-            Cursor c = getContentResolver().query(uri, columns, null, null, null);
-            ArrayList<Integer> favoriteMovieIds=new ArrayList<>();
-            Log.d(TAG, "Got full list of favorite movies");
-            if (c!=null && c.moveToFirst()){
-                do{
-                    int movieId = Integer.valueOf(c.getString(c.getColumnIndex(DataContract.FavoritesEntry.COLUMN_MOVIE_ID)));
-                    favoriteMovieIds.add(movieId);
-                    String movieName = c.getString(c.getColumnIndex(DataContract.FavoritesEntry.COLUMN_MOVIE_NAME));
-                    Log.v(TAG, "Favorite movie (" + movieId + ") - " + movieName);
-                }while(c.moveToNext());
-            }
-            c.close();
-            // now filter out the movies that aren't in the favorites list
-            ArrayList<MovieData> favMovieList = new ArrayList<>();
-            for (MovieData movie: movieList){
-                Integer thisId = Integer.valueOf(movie.getId());
-                if (favoriteMovieIds.contains(thisId)){
-                    favMovieList.add(movie);
-                    Log.v(TAG, movie.getTitle() + " is in the favorites list");
-                }
-            }
-
-            Log.d(TAG, "Movie list now has " + favMovieList.size() + " items in it");
-            return favMovieList;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Log.d(TAG, "FilterMoviesTask about to run");
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MovieData> movieData) {
-            super.onPostExecute(movieData);
-            Log.d(TAG, "FilterMoviesTask finished");
-            movieList = movieData;
-            DisplayMovies();
-        }
-    }
 }
